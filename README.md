@@ -1,2 +1,3 @@
-# advent_of_code
-Answers for  Advent of Code
+# Advent of Code
+
+Exercise solutions for [Advent of Code](https://adventofcode.com)
