@@ -37,6 +37,24 @@ def not_overlap?(current_claim)
   end
 end
 
-the_claim = CLAIMS.find { |current_claim| not_overlap?(current_claim) }
+# Slow version
+# the_claim = CLAIMS.find { |current_claim| not_overlap?(current_claim) }
 
-puts "Part Two - The ID of the only claim that doesn't overlap is #{the_claim[:id]}"
+# Fast version
+grids = Array.new(1000) { Array.new(1000, -1) }
+overlaps = Array.new(CLAIMS.size) { false }
+
+CLAIMS.each_with_index do |claim, index|
+  coordinates(claim).each { |x, y|
+    grid_value = grids[x][y]
+    if grid_value != -1
+      overlaps[index] = true
+      overlaps[grid_value] = true
+    end
+    grids[x][y] = index
+  }
+end
+
+the_id = overlaps.index(false) + 1
+
+puts "Part Two - The ID of the only claim that doesn't overlap is #{the_id}"
