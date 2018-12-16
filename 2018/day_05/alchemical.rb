@@ -3,38 +3,21 @@ require "pry"
 string = File.readlines("./input.txt")[0]
 
 def react?(letter1, letter2)
-  letter1.upcase == letter2.upcase && letter1 != letter2
+  letter1&.upcase == letter2.upcase && letter1 != letter2
 end
 
 def react(string)
-  remain = ''
-  skip = true
-  string.each_char.with_index { |letter, index|
-    if skip
-      skip = false
-      remain << letter if index == string.size - 1
-    else
-      prev_letter = string[index - 1]
-      if react?(letter, prev_letter)
-        skip = true
-      else
-        skip = false
-        remain << prev_letter
-        remain << letter if index == string.size - 1
-      end
-    end
+  string.each_char.with_object('') { |letter, reacted|
+    react?(reacted[-1], letter) ? reacted.chop! : reacted << letter
   }
-  remain
 end
 
-def react_all(string)
-  remain = string
+def react_all(reacted = string)
   string = ''
-  until remain.size == string.size
-    string = remain
-    remain = react(string)
+  until reacted.size == string.size
+    reacted = react(string = reacted)
   end
-  remain
+  reacted
 end
 
 # Part One
