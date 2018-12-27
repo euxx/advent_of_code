@@ -11,30 +11,59 @@ description = '411 players; last marble is worth 72059 points'
 
 players_number, *, last_marble_number = description.split(/\D/).map(&:to_i)
 
-def winning_score(players_number, last_marble_number)
-  circle = [0, 1]
-  scores = Hash.new(0)
-  current_marble_index = 1
-  players = (1..players_number).cycle
-  players.next
-  next_number = 2
+class Marble
+  attr_accessor :before, :after, :value
 
-  until next_number > last_marble_number
-    player = players.next
-    if next_number % 23 == 0
-      index = current_marble_index - 7
-      index += circle.size if index < 0
-      scores[player] += (next_number + circle[index])
-      circle.delete_at(index)
-    else
-      index = current_marble_index + 2
-      index = index % circle.size if index > circle.size
-      circle.insert(index, next_number)
-    end
-    current_marble_index = index
-    next_number += 1
+  def initialize(before = nil, after = nil, value)
+    @before, @after, @value = before, after, value
   end
 
+  def add_after(marble)
+    after = self.after
+    after.before = marble
+    marble.before = self
+    marble.after = after
+    self.after = marble
+  end
+
+  def before_7
+    before = self.before
+    6.times { before = before.before }
+    before
+  end
+end
+
+def remove(marble)
+  before = marble.before
+  after = marble.after
+  before.after = after
+  after.before = before
+end
+
+def winning_score(players_number, last_marble_number)
+  current_marble = Marble.new(nil, nil, 0)
+  current_marble.before = current_marble
+  current_marble.after = current_marble
+
+  scores = Hash.new(0)
+  players = (1..players_number).cycle
+  players.next
+  current_number = 1
+
+  until current_number > last_marble_number
+    player = players.next
+    if current_number % 23 == 0
+      marble_before_7 = current_marble.before_7
+      scores[player] += (current_number + marble_before_7.value)
+      current_marble = marble_before_7.after
+      remove(marble_before_7)
+    else
+      marble = Marble.new(nil, nil, current_number)
+      current_marble.after.add_after(marble)
+      current_marble = marble
+    end
+    current_number += 1
+  end
   scores.values.max
 end
 
