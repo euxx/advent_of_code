@@ -47,6 +47,47 @@ def largest_power_of_all
   powers.max_by(&:last)
 end
 
+def sum_power(x, y)
+  power([x, y]) + TABLE["#{x-1},#{y}"] + TABLE["#{x},#{y-1}"] - TABLE["#{x-1},#{y-1}"]
+end
+
+TABLE = Hash.new(0)
+T = {}
+axis_points = (1..SIDE_LENGTH).to_a
+
+
+axis_points.product(axis_points).each do |x, y|
+  T["#{x},#{y}"]  = power([x, y])# if x < 4 && y < 4
+  TABLE["#{x},#{y}"] = sum_power(x, y)# if   x < 4 && y < 4
+end
+
+# 0 2  3
+# 2 3  -5
+# 3 -5 -3
+#
+# 0 2 5
+# 2 7 5
+# 5 5 0
+
+def fast_total_power(x, y, size)
+  a = [x, y]
+  b = [x + size, y]
+  c = [x + size, y + size]
+  d = [x, y + size]
+  TABLE[key(a)] + TABLE[key(c)] - TABLE[key(b)] - TABLE[key(d)]
+end
+
+def key(coordinate)
+  coordinate.join(',')
+end
+
+def fast_largest_power(size)
+  squares(size - 1).map { |x, y|
+    [[x, y, size], fast_total_power(x, y, size - 1)]
+  }.max_by(&:last)
+end
+
+# binding.pry
 # Part One
 
 the_coordinate = largest_power(3)
@@ -55,6 +96,7 @@ puts "Part 1: - The X,Y coordinate of the top-left fuel cell of the 3x3 square w
 
 # Part Two
 
-the_coordinate_and_size = largest_power_of_all
+# the_coordinate_and_size = largest_power_of_all
+the_coordinate_and_size = fast_largest_power(3)
 
 puts "Part 2: - The the X,Y,size identifier of the square with the largest total power is #{the_coordinate_and_size}"
