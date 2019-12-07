@@ -7,7 +7,7 @@ CODES_SIZE = CODES.size
 def outputs(codes = CODES.dup, index = 0, outputs = '', input = 1)
   code = codes[index].digits
   opcode = code[1].to_i * 10 + code[0]
-  return outputs if opcode == 99
+  return outputs.to_i if opcode == 99
 
   index_at = ->(mode, index) { mode == 1 ? index : codes[index] % CODES_SIZE }
   index1 = index_at.call(code[2], index + 1)
@@ -44,7 +44,7 @@ def outputs(codes = CODES.dup, index = 0, outputs = '', input = 1)
   outputs(codes, index, outputs)
 end
 
-answer1 = outputs.delete('0')
+answer1 = outputs
 
 puts "Part One - The puzzle answer is #{answer1}"
 
