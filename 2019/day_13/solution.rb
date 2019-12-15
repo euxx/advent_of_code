@@ -70,7 +70,7 @@ end
 
 screen = intcode_computer_outputs
 
-answer1 = screen.count { |position, tile| tile == '2' }
+answer1 = screen.count { |_position, tile| tile == '2' }
 
 puts "Part One - The puzzle answer is #{answer1}"
 
