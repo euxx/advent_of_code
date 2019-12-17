@@ -7,7 +7,13 @@ require 'pry'
 
 def intcode_computer_outputs(codes: CODES.dup, base: 0, index: 0, input: 0, output: [])
   result = intcode_computer(codes: codes, base: base, index: index, input: input, output: output)
-  until result.is_a?(Array)
+  index = 1
+  until result.is_a?(Array) && result.size <= 100
+    index += 1
+    board = result[:output].map(&:chr).join.split("\n")
+    print_screen(board)
+    puts index
+    # binding.pry if index == 46349
     result = intcode_computer(result)
   end
   result
@@ -23,24 +29,24 @@ def intersection?(x, y, points)
   end
 end
 
-result = intcode_computer_outputs
+#result = intcode_computer_outputs
 
-board = result.map(&:chr).join.split("\n")
-
-hash = {}
-board.each_with_index do |line, y|
-  line.each_char.with_index do |char, x|
-    hash[[x, y]] = char
-  end
-end
-
-scaffold_points = hash.select { |_, char| char == '#' }.keys
-
-intersections = scaffold_points.select { |x, y| intersection?(x, y, scaffold_points) }
+# board = result.map(&:chr).join.split("\n")
+#
+# hash = {}
+# board.each_with_index do |line, y|
+#   line.each_char.with_index do |char, x|
+#     hash[[x, y]] = char
+#   end
+# end
+#
+# scaffold_points = hash.select { |_, char| char == '#' }.keys
+#
+# intersections = scaffold_points.select { |x, y| intersection?(x, y, scaffold_points) }
 
 # print_screen(board)
 
-answer1 = intersections.sum { |x, y| x.abs * y.abs }
+answer1 = nil#intersections.sum { |x, y| x.abs * y.abs }
 
 puts "Part One - The puzzle answer is #{answer1}"
 
@@ -49,10 +55,25 @@ puts "Part One - The puzzle answer is #{answer1}"
 codes = CODES.dup
 codes[0] = 2
 
-result = intcode_computer_outputs(codes: codes, input: '')
+raw_input = [
+  %w[A , B , A , C , B , A , C , B , A , C],
+  %w[L , 12 , L , 12 , L , 6 , L , 6],
+  %w[R , 8  , R , 4 , L , 12],
+  %w[L , 12 , L , 6 , R , 12 , R , 8],
+  %w[y]
+]
 
-answer2 = nil
+input = raw_input.map do |line|
+  (line.map(&:ord) + [10]).join('')
+end
+
+# binding.pry
+
+result = intcode_computer_outputs(codes: codes, input: input)
+
+answer2 = result
+# binding.pry
 
 puts "Part Two - The puzzle answer is #{answer2}"
 
-'L,12,L,12,L,7,L,6,R,9,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8,R,8,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8,R,8,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8'
+# L,12,L,12,L,6,L,6,R,8,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8,R,8,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8,R,8,R,4,L,12,L,12,L,12,L,6,L,6,L,12,L,6,R,12,R,8

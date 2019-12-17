@@ -42,7 +42,8 @@ def intcode_computer(codes:, base:, index:, input:, output:)
   when 2
     codes[index3] = value1 * value2
   when 3
-    codes[index1] = input
+    binding.pry
+    codes[index1..index1] = input.shift
   when 4
     output << value1
   when 5
@@ -50,7 +51,7 @@ def intcode_computer(codes:, base:, index:, input:, output:)
   when 6
     value1 == 0 ? index = value2 : index += 3
   when 7
-    codes[index3] = value1 < value2 ? 1 : 0
+    codes[index3] = value1 < value2 ? 1 : 0 rescue binding.pry
   when 8
     codes[index3] = value1 == value2 ? 1 : 0
   when 9
