@@ -6,14 +6,14 @@ require_relative "../day_13/intcode_computer"
 def panels(codes: CODES.dup, base: 0, index: 0, input:, output: [])
   panels = Hash.new(input == 0 ? '.' : '#')
   robot = {position: [0, 0], direction: '^'}
-  result = intcode_computer(codes: codes, base: base, index: index, input: input, output: output)
+  result = intcode_computer(codes: codes, base: base, index: index, input: [input], output: output)
 
   until result.is_a?(Array)
     if result[:output].size == 2
       color_code, turn_code = result[:output]
       panels, robot = move(panels, robot, color_code, turn_code)
       color_code = panels[robot[:position]] == '.' ? 0 : 1
-      result = intcode_computer(result.merge(input: color_code, output: []))
+      result = intcode_computer(result.merge(input: [color_code], output: []))
     else
       result = intcode_computer(result)
     end

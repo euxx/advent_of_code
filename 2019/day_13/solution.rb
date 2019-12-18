@@ -3,7 +3,7 @@ require_relative "intcode_computer"
 
 # Part One
 
-def intcode_computer_outputs(codes: CODES.dup, base: 0, index: 0, input: 0, output: [])
+def intcode_computer_outputs(codes: CODES.dup, base: 0, index: 0, input: [], output: [])
   result = intcode_computer(codes: codes, base: base, index: index, input: input, output: output)
   screen = {}
   until result.is_a?(Array)
@@ -11,7 +11,7 @@ def intcode_computer_outputs(codes: CODES.dup, base: 0, index: 0, input: 0, outp
       screen = draw(screen, result[:output])
       # sleep 0.04
       # print_screen(screen)
-      result = intcode_computer(result.merge(input: move_paddle_value(screen), output: []))
+      result = intcode_computer(result.merge(input: [move_paddle_value(screen)], output: []))
     else
       result = intcode_computer(result)
     end

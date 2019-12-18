@@ -2,17 +2,9 @@ CODES = DATA.first.split(',').map(&:to_i)
 CODES_SIZE = CODES.size
 
 def index_at(index, mode, base, codes)
-  index =
-    case mode
-    when 1
-      index
-    when 2
-      codes[index % CODES_SIZE] + base
-    else
-      codes[index % CODES_SIZE]
-    end
-
-  defined?(LARGE_MEMORY) ? index : index %= CODES_SIZE
+  return index if mode == 1
+  index = codes[index]
+  mode == 2 ? index + base : index
 end
 
 def update_index(index, opcode)
@@ -34,7 +26,7 @@ def intcode_computer(codes:, base:, index:, input:, output:)
   index1 = index_at(index + 1, code[2], base, codes)
   index2 = index_at(index + 2, code[3], base, codes)
   index3 = index_at(index + 3, code[4], base, codes)
-  value1 = codes[index1]
+  value1 = codes[index1] || 0
   value2 = codes[index2]
 
   case opcode
@@ -43,7 +35,7 @@ def intcode_computer(codes:, base:, index:, input:, output:)
   when 2
     codes[index3] = value1 * value2
   when 3
-    codes[index1] = input
+    codes[index1] = input.shift
   when 4
     output << value1
   when 5
