@@ -27,7 +27,7 @@ def intcode_computer(codes:, base:, index:, input:, output:)
   index2 = index_at(index + 2, code[3], base, codes)
   index3 = index_at(index + 3, code[4], base, codes)
   value1 = codes[index1] || 0
-  value2 = codes[index2]
+  value2 = codes[index2] || 0
 
   case opcode
   when 1
