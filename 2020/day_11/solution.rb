@@ -69,23 +69,21 @@ puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
+MOVES = adjacent_seats(0, 0)
+
 def seats_seen_count(grid, x, y, count: 0)
-  (-1..1).each do |add_y|
-    (-1..1).each do |add_x|
-      next if add_y == 0 && add_x == 0
+  MOVES.each do |move_x, move_y|
+    current_y = y + move_y
+    current_x = x + move_x
+    loop do
+      break unless in_grid?(current_x, current_y)
 
-      current_y = y + add_y
-      current_x = x + add_x
-      loop do
-        break unless in_grid?(current_x, current_y)
+      seat = grid[current_y][current_x]
+      count += 1 if seat == '#'
+      break if seat == '#' || seat == 'L'
 
-        seat = grid[current_y][current_x]
-        count += 1 if seat == '#'
-        break if seat == '#' || seat == 'L'
-
-        current_y += add_y
-        current_x += add_x
-      end
+      current_y += move_y
+      current_x += move_x
     end
   end
 
