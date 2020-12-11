@@ -4,32 +4,24 @@ input = File.readlines("./2020/day_11/input.txt")
 
 initial_grid = input.map { |line| line.delete("\n") }
 
-Y_SIZE = initial_grid.size
+HEIGHT = initial_grid.size
+WIDTH = initial_grid.first.size
 
-# Part One
-
-def seats_adjacent_count(grid, x, y)
-  [
-    [x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
-    [x - 1, y], [x + 1, y],
-    [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
-  ].count do |x1, y1|
-    next false if x1 < 0 || y1 < 0 || y1 == Y_SIZE
-
-    grid[y1][x1] == '#'
-  end
+def in_grid?(x, y)
+  y.between?(0, HEIGHT-1) && x.between?(0, WIDTH-1)
 end
 
-def round_result(current_grid)
+def next_grid(current_grid, seen:)
   next_grid = current_grid.deep_dup
 
   current_grid.each_with_index do |line, y|
     line.chars.each_with_index do |seat, x|
-      count = seats_adjacent_count(current_grid, x, y)
-      if seat == 'L'
-        next_grid[y][x] = '#' if count.zero?
-      elsif seat == '#'
-        next_grid[y][x] = 'L' if count >= 4
+      count = seen ? seats_seen_count(current_grid, x, y) : seats_adjacent_count(current_grid, x, y)
+
+      if seat == 'L' && count.zero?
+        next_grid[y][x] = '#'
+      elsif seat == '#' && count >= (seen ? 5 : 4)
+        next_grid[y][x] = 'L'
       end
     end
   end
@@ -37,20 +29,71 @@ def round_result(current_grid)
   next_grid
 end
 
-current_grid = initial_grid
-last_grid = []
+def final_grid(grid, seen: false)
+  current_grid = grid
+  last_grid = []
 
-until current_grid == last_grid
-  last_grid = current_grid
-  current_grid = round_result(current_grid.deep_dup)
+  until current_grid == last_grid
+    last_grid = current_grid
+    current_grid = next_grid(current_grid.deep_dup, seen: seen)
+  end
+
+  current_grid
 end
 
-result = current_grid.flatten.join.count('#')
+def occupied_count(grid)
+  grid.join.count('#')
+end
+
+# Part One
+
+def adjacent_seats(x, y)
+  [
+    [x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
+    [x - 1, y], [x + 1, y],
+    [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
+  ]
+end
+
+def seats_adjacent_count(grid, x, y)
+  adjacent_seats(x, y).count do |x1, y1|
+    in_grid?(x1, y1) && grid[y1][x1] == '#'
+  end
+end
+
+final_grid = final_grid(initial_grid)
+
+result = occupied_count(final_grid)
 
 puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-result =
+def seats_seen_count(grid, x, y, count: 0)
+  (-1..1).each do |add_y|
+    (-1..1).each do |add_x|
+      next if add_y == 0 && add_x == 0
+
+      current_y = y + add_y
+      current_x = x + add_x
+      loop do
+        break unless in_grid?(current_x, current_y)
+
+        seat = grid[current_y][current_x]
+        count += 1 if seat == '#'
+        break if seat == '#' || seat == 'L'
+
+        current_y += add_y
+        current_x += add_x
+      end
+    end
+  end
+
+  count
+end
+
+final_grid = final_grid(initial_grid, seen: true)
+
+result = occupied_count(final_grid)
 
 puts "Part Two - The puzzle answer is #{result}"
