@@ -44,3 +44,44 @@ end
 result = ship[:x].abs + ship[:y].abs
 
 puts "Part One - The puzzle answer is #{result}"
+
+# Part Two
+
+ship = { x: 0, y: 0 }
+way_point = { x: 10, y: 1 }
+
+def points(point)
+  x, y = point[0], point[1]
+
+  [
+    [x, y],
+    [y, -x],
+    [-x, -y],
+    [-y, x],
+  ]
+end
+
+instructions.each do |action, value|
+  case action
+  when 'N', 'S', 'E', 'W'
+    move(way_point, action, value)
+  when 'F'
+    move(ship, 'E', way_point[:x] * value)
+    move(ship, 'N', way_point[:y] * value)
+  when 'L', 'R'
+    point = [way_point[:x], way_point[:y]]
+    points = points(point)
+    index =
+      if action == 'L'
+        -((value / 90) % 4) + points.index(point)
+      else
+        (value / 90 + points.index(point)) % 4
+      end
+    x, y = points[index]
+    way_point = { x: x, y: y }
+  end
+end
+
+result = ship[:x].abs + ship[:y].abs
+
+puts "Part Two - The puzzle answer is #{result}"
