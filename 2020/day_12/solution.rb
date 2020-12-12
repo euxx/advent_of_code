@@ -71,12 +71,9 @@ instructions.each do |action, value|
   when 'L', 'R'
     point = [way_point[:x], way_point[:y]]
     points = points(point)
-    index =
-      if action == 'L'
-        -((value / 90) % 4) + points.index(point)
-      else
-        (value / 90 + points.index(point)) % 4
-      end
+    times = value / 90
+    index = points.index(point)
+    index = action == 'L' ? index - times % 4 : (times + index) % 4
     x, y = points[index]
     way_point = { x: x, y: y }
   end
