@@ -9,9 +9,7 @@ input.each_with_index do |line, index|
   if line.start_with?('mask')
     group = {mask: line[7..-1], mems: []}
   else
-    left, value = line.split('] = ')
-    address = left[4..-1]
-    group[:mems] << [address.to_i, value.to_i]
+    group[:mems] << line.scan(/\d+/).map(&:to_i)
 
     program << group if input[index + 1]&.start_with?('mask') || input[index + 1].nil?
   end
@@ -22,20 +20,16 @@ end
 mem = {}
 
 program.each do |group|
-  mask = group[:mask].reverse.chars
+  mask = group[:mask].chars
 
   group[:mems].each do |address, value|
-    masked = '0' * 36
+    masked = ''
 
-    value.to_s(2).reverse.each_char.with_index do |char, index|
-      masked[index] = char
+    value.to_s(2).rjust(36, '0').chars.zip(mask).each do |bit_v, bit_m|
+      masked << (bit_m == 'X' ? bit_v : bit_m)
     end
 
-    mask.each_with_index do |char, index|
-      masked[index] = char unless char == 'X'
-    end
-
-    mem[address] = masked.reverse.to_i(2)
+    mem[address] = masked.to_i(2)
   end
 end
 
@@ -46,45 +40,31 @@ puts "Part One - The puzzle answer is #{result}"
 # Part Two
 
 def floating_bits(mask)
-  x_count = mask.count('X')
-  x_indexes = []
+  indexes = mask.each_index.select { |index| mask[index] == 'X' }
 
-  x_count.times do
-    index = mask.index('X')
-    x_indexes << index
-    mask[index] = 'x'
+  ['0', '1'].repeated_permutation(indexes.size).map do |bits|
+    indexes.zip(bits)
   end
-
-  floating_bits = ['0', '1']
-  (x_count - 1).times { floating_bits = floating_bits.product(['0', '1']) }
-
-  [x_indexes, floating_bits]
 end
 
 mem = {}
 
 program.each do |group|
-  mask = group[:mask].reverse.chars
+  mask = group[:mask].chars
 
-  x_indexes, floating_bits = floating_bits(mask)
+  floating_bits = floating_bits(mask)
 
   group[:mems].each do |address, value|
-    masked = '0' * 36
+    masked = ''
 
-    address.to_s(2).reverse.chars.each_with_index do |char, index|
-      masked[index] = char
-    end
-
-    mask.each_with_index do |char, index|
-      masked[index] = char unless char == '0'
+    address.to_s(2).rjust(36, '0').chars.zip(mask).each do |bit_a, bit_m|
+      masked << (bit_m == '0' ? bit_a : bit_m)
     end
 
     floating_bits.each do |bits|
-      bits.flatten.each_with_index do |bit, index|
-        masked[x_indexes[index]] = bit
-      end
+      bits.each { |index, bit| masked[index] = bit }
 
-      mem[masked.reverse.to_i(2)] = value
+      mem[masked.to_i(2)] = value
     end
   end
 end
