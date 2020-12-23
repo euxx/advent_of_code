@@ -1,20 +1,52 @@
+# Key 1: change big data collection(like array) is slow, use linked objects instead
+# Key 2: min, max is fixed in part 2
+
 input = 925176834
 
 cups = input.digits.reverse
 
+class Cup
+  attr_accessor :value, :next
+
+  def initialize(value)
+    @value = value
+  end
+
+  def values
+    cup_values = [self.value]
+    cup = self.next
+
+    until cup == self
+      cup_values << cup.value
+      cup = cup.next
+    end
+
+    cup_values
+  end
+end
+
 def move(cups, n)
   size = n > 100 ? 1000000 : cups.size
   cups = n > 100 ? cups + (10..size).to_a : cups.dup
-  i = 0
+
+  cups = cups.map { |c| Cup.new(c) }
+  hash = {}
+  cups.each_with_index do |cup, index|
+    cup.next = cups[(index + 1) % size]
+
+    hash[cup.value] = cup
+  end
+
+  current = cups.first
+  min, max = 1, 1000000
 
   n.times do
-    current = cups[i]
-    i1, i2, i3 = (i + 1) % size, (i + 2) % size, (i + 3) % size
-    pick_up = [cups[i1], cups[i2], cups[i3]]
-    cups -= pick_up
+    c1, c2, c3 = current.next, current.next.next, current.next.next.next
+    pick_up = [c1.value, c2.value, c3.value]
+    current.next = c3.next
 
-    min, max = cups.minmax
-    dest = current - 1
+    min, max = (current.values - pick_up).minmax if n == 100
+    dest = current.value - 1
     dest = max if dest < min
 
     if pick_up.include?(dest)
@@ -24,29 +56,31 @@ def move(cups, n)
       end
     end
 
-    index = cups.index(dest)
-    cups.insert((index + 1) % size, *pick_up)
+    c_dest = hash[dest]
+    dest_next = c_dest.next
+    c3.next = dest_next
+    c_dest.next = c1
 
-    i = (cups.index(current) + 1) % size
+    current = current.next
   end
 
-  cups
+  hash
 end
 
 # Part One
 
-final = move(cups, 100)
-i = final.index(1)
+hash = move(cups, 100)
+cup = hash[1]
 
-result = (final + final)[i+ 1..i + final.size - 1].join
+result = cup.values[1..-1].join
 
 puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-final = move(cups, 10000000)
-i = final.index(1)
+hash = move(cups, 10000000)
+cup = hash[1]
 
-result = final[i + 1] * final[i + 2]
+result = cup.next.value * cup.next.next.value
 
 puts "Part Two - The puzzle answer is #{result}"
