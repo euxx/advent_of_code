@@ -21,30 +21,28 @@ end
 
 # Part One
 
-result = state.count { |_, v| v }
+result = state.count(&:last)
 
 puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
 100.times do
-  vecs =  state.select { |_, v| v }.keys.map(&:rect)
-  xmin, xmax = vecs.map(&:first).minmax
-  ymin, ymax = vecs.map(&:last).minmax
+  state.select { |_, is_black| is_black }.each do |vec, _|
+    VEC.each_value { |v| state[vec + v] ||= false }
+  end
+
   new_state = Hash.new(false)
 
-  (xmin - 1..xmax + 1).each do |x|
-    (ymin - 1..ymax + 1).each do |y|
-      vec = Complex(x, y)
-      count = VEC.count { |_, v| state[vec + v] }
+  state.each do |vec, is_black|
+    count = VEC.count { |_, v| state[vec + v] }
 
-      new_state[vec] = (state[vec] && [1, 2].include?(count)) || count == 2
-    end
+    new_state[vec] = (is_black && [1, 2].include?(count)) || count == 2
   end
 
   state = new_state
 end
 
-result = state.count { |_, v| v }
+result = state.count(&:last)
 
 puts "Part Two - The puzzle answer is #{result}"
