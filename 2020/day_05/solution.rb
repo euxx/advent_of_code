@@ -1,6 +1,6 @@
 input = File.readlines("./2020/day_05/input.txt")
 
-passes = input.map { |line| line.delete("\n") }
+passes = input.map(&:strip)
 
 # Part One
 
@@ -47,3 +47,11 @@ column = ((1..7).to_a - target_seat_positions[row].map(&:last)).first
 result = row * 8 + column
 
 puts "Part Two - The puzzle answer is #{result}"
+
+## Smart way
+
+ids = passes.map { |pass| pass.tr("FBLR", "0101").to_i(2) }
+
+puts 'Smart way:'
+puts "Part One - The puzzle answer is #{ids.max}"
+puts "Part Two - The puzzle answer is #{((ids.min..ids.max).to_a - ids).first}"
