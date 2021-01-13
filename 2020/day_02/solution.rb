@@ -1,28 +1,19 @@
-input = File.readlines("./2020/day_02/input.txt")
+input = File.read("./2020/day_02/input.txt")
 
-passwords = input.map do |line|
-  limit, char, value = line.split(' ')
-  min, max = limit.split('-').map(&:to_i)
-
-  [char[0], min, max, value]
-end
+passwords = input.scan(/(\d+)-(\d+) (\w): (\w+)/)
 
 # Part One
 
-valid_passwords = passwords.select do |char, min, max, value|
-  (min..max).include?(value.count(char))
+result = passwords.count do |min, max, char, value|
+  value.count(char).between?(min.to_i, max.to_i)
 end
-
-result = valid_passwords.size
 
 puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-valid_passwords = passwords.select do |char, min, max, value|
-  [value[min-1] == char, value[max-1] == char].uniq.size == 2
+result = passwords.count do |min, max, char, value|
+  (value[min.to_i-1] == char) != (value[max.to_i-1] == char)
 end
-
-result = valid_passwords.size
 
 puts "Part Two - The puzzle answer is #{result}"
