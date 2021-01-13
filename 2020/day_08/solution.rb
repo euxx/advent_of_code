@@ -1,8 +1,8 @@
 input = File.readlines("./2020/day_08/input.txt")
 
 INSTRUCTIONS = input.map do |line|
-   operation, argument = line.delete("\n").split(' ')
-   [operation, argument.to_i]
+  operation, argument = line.strip.split(' ')
+  [operation, argument.to_i]
 end
 SIZE = INSTRUCTIONS.size
 
@@ -39,19 +39,17 @@ puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-instructions_group = INSTRUCTIONS.map.with_index do |instruction, index|
+result = nil
+
+INSTRUCTIONS.each_with_index do |instruction, index|
   operation, argument = instruction
-  next nil if operation == 'acc'
+  next if operation == 'acc'
 
   instructions = INSTRUCTIONS.clone
   instructions[index] = [{'jmp' => 'nop', 'nop' => 'jmp'}[operation], argument]
-  instructions
-end.compact
 
-the_right_instructions = instructions_group.find do |instructions|
-  program(instructions)[:terminated]
+  result = program(instructions)
+  break result = result[:accumulator] if result[:terminated]
 end
-
-result = program(the_right_instructions)[:accumulator]
 
 puts "Part Two - The puzzle answer is #{result}"
