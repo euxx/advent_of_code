@@ -1,30 +1,22 @@
 input = File.readlines("./2020/day_03/input.txt")
 
-AREA = input.map { |line| line.delete("\n") }
+AREA = input.map(&:strip)
 HEIGHT = AREA.size
 WIDTH = AREA.first.size
 
-def points(slope)
+def count_trees(slope)
   right, down = slope
-  vertical_size = down == 1 ? HEIGHT - 1 : HEIGHT / down
 
-  (0..vertical_size).to_a.map do |index|
-    [index * right, index * down]
-  end
-end
+  (0...HEIGHT).step(down).count do |y|
+    x = y / down * right % WIDTH
 
-def encounter_trees_count(slope)
-  points(slope).count do |x, y|
-    line = AREA[y]
-    point = line[x % WIDTH]
-    # puts [line, point, x, y].join(' --- ')
-    point == '#'
+    AREA[y][x] == '#'
   end
 end
 
 def get_result(slopes)
-  slopes.map(&method(:encounter_trees_count))
-        .inject(:*)
+  slopes.map(&method(:count_trees))
+        .reduce(:*)
 end
 
 # Part One
