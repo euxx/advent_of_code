@@ -1,8 +1,6 @@
-input = File.readlines("./2020/day_06/input.txt")
+input = File.read("./2020/day_06/input.txt")
 
-questions = input.join
-                 .split("\n\n")
-                 .map { |line| line.tr("\n", ' ').split(' ') }
+questions = input.split("\n\n").map(&:split)
 
 # Part One
 
