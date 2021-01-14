@@ -1,6 +1,6 @@
 input = File.read("./2020/day_22/input.txt")
 
-p1, p2 = input.split("\n\n").map { |p| p.split("\n").drop(1).map(&:to_i) }
+p1, p2 = input.split("\n\n").map { |p| p.lines.drop(1).map(&:to_i) }
 
 def play(p1, p2, is_p2: false)
   p1, p2 = p1.dup, p2.dup
