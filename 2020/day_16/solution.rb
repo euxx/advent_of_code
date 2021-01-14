@@ -1,8 +1,8 @@
-input = File.readlines("./2020/day_16/input.txt")
+input = File.read("./2020/day_16/input.txt")
 
-data = input.join.split("\n\n")
+data = input.split("\n\n")
 
-rules = data[0].split("\n").map do |line|
+rules = data[0].lines.map do |line|
   name, rest = line.split(':')
   sub_rules = rest.scan(/\d+/).each_slice(2).map do |b, e|
     b.to_i..e.to_i
@@ -15,7 +15,7 @@ all_rules = rules.values.flatten
 
 my_ticket = data[1].scan(/\d+/).map(&:to_i)
 
-nearby_tickets = data[2].split("\n")[1..-1].map do |line|
+nearby_tickets = data[2].lines[1..-1].map do |line|
   line.scan(/\d+/).map(&:to_i)
 end
 
@@ -52,23 +52,18 @@ name_with_valid_indexes = rules.map do |name, sub_rules|
 end
 
 name_with_index = []
+remain = name_with_valid_indexes
 
-until name_with_index.size == size
-  name, only_one_index = name_with_valid_indexes.find do |name, sub_index|
-    sub_index.size == 1
-  end
-
+while (name, only_one_index = remain.find { _2.size == 1 })
   name_with_index << [name, only_one_index[0]]
 
-  name_with_valid_indexes = name_with_valid_indexes.map do |name, sub_index|
-    [name, sub_index - only_one_index]
-  end
+  remain = remain.map { [_1, _2 - only_one_index] }
 end
 
 order_names = name_with_index.sort_by(&:last).map(&:first)
 
-result = my_ticket.select.with_index do |n, i|
-  order_names[i].start_with?('departure') && n
+result = my_ticket.select.with_index do
+  order_names[_2] =~ /departure/
 end.reduce(:*)
 
 puts "Part Two - The puzzle answer is #{result}"
