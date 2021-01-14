@@ -1,8 +1,6 @@
-require 'active_support/all'
-
 input = File.readlines("./2020/day_11/input.txt")
 
-initial_grid = input.map { |line| line.delete("\n") }
+initial_grid = input.map(&:strip)
 
 HEIGHT = initial_grid.size
 WIDTH = initial_grid.first.size
@@ -12,10 +10,11 @@ def in_grid?(x, y)
 end
 
 def next_grid(current_grid, seen:)
-  next_grid = current_grid.deep_dup
+  next_grid = current_grid.clone.map(&:clone)
 
   current_grid.each_with_index do |line, y|
     line.chars.each_with_index do |seat, x|
+      next if seat == '.'
       count = seen ? seats_seen_count(current_grid, x, y) : seats_adjacent_count(current_grid, x, y)
 
       if seat == 'L' && count.zero?
@@ -29,20 +28,20 @@ def next_grid(current_grid, seen:)
   next_grid
 end
 
-def final_grid(grid, seen: false)
+def final_grid(grid, seen:)
   current_grid = grid
   last_grid = []
 
   until current_grid == last_grid
     last_grid = current_grid
-    current_grid = next_grid(current_grid.deep_dup, seen: seen)
+    current_grid = next_grid(current_grid, seen: seen)
   end
 
   current_grid
 end
 
-def occupied_count(grid)
-  grid.join.count('#')
+def occupied_count(grid, seen: false)
+  final_grid(grid, seen: seen).join.count('#')
 end
 
 # Part One
@@ -61,9 +60,7 @@ def seats_adjacent_count(grid, x, y)
   end
 end
 
-final_grid = final_grid(initial_grid)
-
-result = occupied_count(final_grid)
+result = occupied_count(initial_grid)
 
 puts "Part One - The puzzle answer is #{result}"
 
@@ -75,12 +72,13 @@ def seats_seen_count(grid, x, y, count: 0)
   MOVES.each do |move_x, move_y|
     current_y = y + move_y
     current_x = x + move_x
+
     loop do
       break unless in_grid?(current_x, current_y)
 
       seat = grid[current_y][current_x]
       count += 1 if seat == '#'
-      break if seat == '#' || seat == 'L'
+      break unless seat == '.'
 
       current_y += move_y
       current_x += move_x
@@ -90,8 +88,6 @@ def seats_seen_count(grid, x, y, count: 0)
   count
 end
 
-final_grid = final_grid(initial_grid, seen: true)
-
-result = occupied_count(final_grid)
+result = occupied_count(initial_grid, seen: true)
 
 puts "Part Two - The puzzle answer is #{result}"
