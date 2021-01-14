@@ -1,14 +1,10 @@
-input = File.readlines("./2020/day_13/input.txt")
+input = File.read("./2020/day_13/input.txt")
 
-earliest_timestamp = input.first.to_i
-
-ids = input.last[0..-2].split(',').map do |id|
-  id == 'x' ? id : id.to_i
-end
+earliest_timestamp, *ids = input.scan(/\d+/).map(&:to_i)
 
 # Part One
 
-ids_and_wait_time = (ids - ['x']).map do |id|
+ids_and_wait_time = ids.map do |id|
   timestamp = ((earliest_timestamp / id) + 1) * id
 
   [id, timestamp - earliest_timestamp]
@@ -22,22 +18,13 @@ puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-order_ids = ids.map.with_index do |id, index|
-  id == 'x' ? nil : [id, index]
-end.compact
+t = ids.shift
+lcm = t
 
-first_id = order_ids.first.first
-t = ((100000000000000 / first_id) + 1) * first_id
-found = false
+ids.zip(1..).each do |id, index|
+  t += lcm until (t + index) % id == 0
 
-until found
-  t += first_id
-
-  found = order_ids[1..-1].all? do |id, index|
-    timestamp = ((t / id) + 1) * id
-
-    timestamp - t == index
-  end
+  lcm = lcm.lcm(id)
 end
 
 result = t
