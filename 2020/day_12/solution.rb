@@ -1,84 +1,49 @@
 input = File.readlines("./2020/day_12/input.txt")
 
-instructions = input.map do |line|
-  instruction = line.delete("\n")
+INSTRUCTIONS = input.map { |line| [line[0], line[1..].to_i] }
 
-  [instruction[0], instruction[1..-1].to_i]
+DIRS = {
+  'N' => Complex(0, 1),
+  'S' => Complex(0, -1),
+  'E' => Complex(1, 0),
+  'W' => Complex(-1, 0),
+  'L' => Complex(0, 1),
+  'R' => Complex(0, -1),
+}
+
+def move_ship(way_poiont, is_part_2: false)
+  ship = Complex(0, 0)
+
+  INSTRUCTIONS.each do |action, value|
+    case action
+    when 'N', 'S', 'E', 'W'
+      if is_part_2
+        way_poiont += DIRS[action] * value
+      else
+        ship += DIRS[action] * value
+      end
+    when 'F'
+      ship += way_poiont * value
+    when 'L', 'R'
+      way_poiont *= DIRS[action] ** (value / 90)
+    end
+  end
+
+  ship
 end
 
 # Part One
 
-ship = { direction: 'E', x: 0, y: 0 }
+direction = DIRS['E']
 
-def move(ship, action, value)
-  case action
-  when 'N'
-    ship[:y] += value
-  when 'S'
-    ship[:y] -= value
-  when 'E'
-    ship[:x] += value
-  when 'W'
-    ship[:x] -= value
-  end
-end
-
-directions = ['N', 'E', 'S', 'W']
-
-instructions.each do |action, value|
-  direction = ship[:direction]
-  case action
-  when 'N', 'S', 'E', 'W'
-    move(ship, action, value)
-  when 'F'
-    move(ship, direction, value)
-  when 'L'
-    index = -((value / 90) % 4) + directions.index(direction)
-    ship[:direction] = directions[index]
-  when 'R'
-    index = (value / 90 + directions.index(direction)) % 4
-    ship[:direction] = directions[index]
-  end
-end
-
-result = ship[:x].abs + ship[:y].abs
+result = move_ship(direction).rect.sum(&:abs)
 
 puts "Part One - The puzzle answer is #{result}"
 
 # Part Two
 
-ship = { x: 0, y: 0 }
-way_point = { x: 10, y: 1 }
+way_poiont = 10 * DIRS['E'] + DIRS['N']
 
-def points(point)
-  x, y = point[0], point[1]
-
-  [
-    [x, y],
-    [y, -x],
-    [-x, -y],
-    [-y, x],
-  ]
-end
-
-instructions.each do |action, value|
-  case action
-  when 'N', 'S', 'E', 'W'
-    move(way_point, action, value)
-  when 'F'
-    move(ship, 'E', way_point[:x] * value)
-    move(ship, 'N', way_point[:y] * value)
-  when 'L', 'R'
-    point = [way_point[:x], way_point[:y]]
-    points = points(point)
-    times = value / 90
-    index = points.index(point)
-    index = action == 'L' ? index - times % 4 : (times + index) % 4
-    x, y = points[index]
-    way_point = { x: x, y: y }
-  end
-end
-
-result = ship[:x].abs + ship[:y].abs
+result = move_ship(way_poiont, is_part_2: true).rect.sum(&:abs)
 
 puts "Part Two - The puzzle answer is #{result}"
