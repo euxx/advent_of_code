@@ -4,14 +4,13 @@ program = []
 group = {}
 
 input.each_with_index do |line, index|
-  line = line.delete("\n")
-
-  if line.start_with?('mask')
-    group = {mask: line[7..-1], mems: []}
+  if line =~ /mask/
+    group = {mask: line.strip[7..-1], mems: []}
   else
     group[:mems] << line.scan(/\d+/).map(&:to_i)
 
-    program << group if input[index + 1]&.start_with?('mask') || input[index + 1].nil?
+    next_line = input[index + 1]
+    program << group if next_line =~ /mask/ || next_line.nil?
   end
 end
 
